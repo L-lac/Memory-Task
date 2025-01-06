@@ -92,6 +92,12 @@ def process_memory_task_data(file_path):
     # Filter rows for the current run
     run_data = data[data['Run'] == run]
 
+    #Specifying the output coloumns for the recognition and study phase
+    output_columns = [
+      'Material_Type', 'Response_Time', 'ConType',
+      'Condition', 'Recog1_Resp.corr', 'Signal_Detection_Type',
+      'Onset_Time', 'Material_Attribute']
+
     # Save the data for the current run into an Excel file
     output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
     run_data.to_excel(output_file_name, index=False)
