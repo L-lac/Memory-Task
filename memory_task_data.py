@@ -32,16 +32,14 @@ def process_memory_task_data(file_path):
   def signal_detection(row):
     #Old pics: 1 = Hit, 0 = Miss
     if row['Condition'] == 'Old':
-      if row['Recog1_Resp.corr'] == 1:
-        return 'Hit'
-      else: return "Miss'
+      return 'Hit' if row['Recog1_Resp.corr'] == 1 else 'Miss'
 
     #New / Lure Pics: 1 = Correct Rejection (CR), 0 = False Alarm (FA)
     #Combined Condition to group together New and Lure 
     elif row['Condition'] in ['New', 'Lure']:
-      if row['Recog1_Resp.corr'] == 1:
-        return 'CR'
-      else: return 'FA'
+      return 'CR' if row['Recog1_Resp.corr'] == 1 else 'FA'
+    else:
+      return None
         
   #axis=1 tells apply() function to run the function we created row by row 
   data['Signal_Detection_Type'] = data.apply(signal_detection, axis=1)
@@ -61,4 +59,43 @@ def process_memory_task_data(file_path):
 
     #Assigns value to the Onset_Time column of this run
     data.loc[(data['Run'] == run) & (data['stimulus_start_time'] == onset_time), 'Onset_Time'] = onset_time
+  
+  #living/nonliving, indoor/outdoor, likely/unlikely 
+  def material_attribute(row):
+    """Classifies if the material attribute is 8=living / 5=nonliving, 8=indoor / 5=outdoor, or 8=likely / 5=unlikely 
+    based on if the Material_Type is an Object, Scene, or Pair. """
+    
+    #When the numer = 8
+    if row['Recog1_Resp.keys'] == 'num_8':
+      if row['Material_Type'] == 'Object':  
+        return 'Living'
+      elif row['Material_Type'] == 'Scene':  
+        return 'Indoor'
+      elif row['Material_Type'] == 'Pair':  
+        return 'Likely'
 
+    #When the number = 5
+    elif row['Recog1_Resp.keys'] == 'num_5':
+      if row['Material_Type'] == 'Object':  
+        return 'Nonliving'
+      elif row['Material_Type'] == 'Scene': 
+        return 'Outdoor'
+      elif row['Material_Type'] == 'Pair': 
+        return 'Unlikely'
+    return None
+    
+  #Creates Material_Attribute column 
+  data['Material_Attribute'] = data.apply(classify_material_attribute, axis=1)
+
+  #--- Separating Data By Run ---
+  for run in data['Run'].unique():
+    # Filter rows for the current run
+    run_data = data[data['Run'] == run]
+
+    # Save the data for the current run into an Excel file
+    output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
+    run_data.to_excel(output_file_name, index=False)
+    print(f"Saved: {output_file_name}")
+
+#Calling the main function that executes everything 
+process_memory_task_data(file_path)
