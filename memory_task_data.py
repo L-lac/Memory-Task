@@ -2,7 +2,9 @@ import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
-  
+
+print(data['stimulus_start_time'].dtype)
+data['stimulus_start_time'] = pd.to_numeric(data['stimulus_start_time'], errors='coerce')
 #Identifying when a new run starts and assigns a number to each (1-4)
 data['Run'] = 1
 current_run = 1
