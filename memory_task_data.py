@@ -8,12 +8,20 @@ data['Run'] = 1
 current_run = 1
 #Starts from the second row
 for row in range(1, len(data)):  
-  if data['stimulus_start_time'].iloc[row] < data['stimulus_start_time'].iloc[row - 1]:
-      #Increment run # by 1 if a reset is detected -> when the current time is < the previous time
-      current_run += 1 
+  previous_time = data['stimulus_start_time'].iloc[row - 1]
+  current_time = data['stimulus_start_time'].iloc[row]
+  if current_time < previous_time:
+    print(f"New run detected at row {row}: {current_time} (previous: {previous_time})")
+    #Increment run # by 1 if a reset is detected -> when the current time is < the previous time
+    current_run += 1 
+  #Assigns current run number to the row 
   data.loc[row, 'Run'] = current_run
 print(f"Unique runs detected: {data['Run'].unique()}")
-  
+
+#Debugging
+data.to_excel("Full_Data_With_Runs.xlsx", index=False)
+print("Saved data with run numbers to Full_Data_With_Runs.xlsx")
+
 #--- Processing Each Run ---  
 for run in data['Run'].unique():
   #Filters each row for the current run 
