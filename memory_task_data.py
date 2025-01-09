@@ -1,28 +1,26 @@
 import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
-def process_memory_task_data(file_path):
-  """ Creates a functiom that processes the Excel file to generate 4 outputs, each corresponding to 
-  its individual run with recognition and study phases """ 
+data = pd.read_excel(file_path)
   
-  data = pd.read_excel(file_path)
+#Identifying when a new run starts and assigns a number to each (1-4)
+data['Run'] = 1
+current_run = 1
+#Starts from the second row
+for row in range(1, len(data)):  
+  if data['stimulus_start_time'].iloc[row] < data['stimulus_start_time'].iloc[row - 1]:
+      #Increment run # by 1 if a reset is detected -> when the current time is < the previous time
+      current_run += 1 
+  data.loc[row, 'Run'] = current_run
+print(f"Unique runs detected: {data['Run'].unique()}")
   
-  #Identifying when a new run starts and assigns a number to each (1-4)
-  data['Run'] = (data['stimulus_start_time'].diff() < 0).cumsum() + 1
-  print(f"Unique runs detected: {data['Run'].unique()}")
-
-  #Separate each run into its own file  
-  for run in data['Run'].unique():
-    #Filters each row for the current run 
-    run_data = data[data['Run'] == run].copy()
-    output_file_name = f"Run{int(run)}_Raw.xlsx"
-    run_data.to_excel(output_file_name, index=False)
-    print(f"Saved: {output_file_name}")
-
-  #---Processing each run for the study phase onset time ---
-  #Initializes the column
-  run_data['Onset_Time'] = None
-  run_data.loc[run_data.index[1], 'Onset_Time'] = run_data['stimulus_start_time'].iloc[1]
+#--- Processing Each Run ---  
+for run in data['Run'].unique():
+  #Filters each row for the current run 
+  run_data = data[data['Run'] == run].copy()
+  output_file_name = f"Run{int(run)}_Raw.xlsx"
+  run_data.to_excel(output_file_name, index=False)
+  print(f"Saved: {output_file_name}")
 
   
   #--- Recognition Phase ---
@@ -63,10 +61,8 @@ def process_memory_task_data(file_path):
   #--- Study Phase ----
 
   #Onset time when "NewImg" turns into "Studied" --> 2nd stimulus_start_time of each run 
-  
-  #Assigns value to the Onset_Time column of this run
-  
-
+  run_data['Onset_Time'] = None
+  run_data.loc[run_data.index[1], 'Onset_Time'] = run_data['stimulus_start_time'].iloc[1]
     
   #living/nonliving, indoor/outdoor, likely/unlikely 
   def material_attribute(row):
@@ -106,5 +102,3 @@ def process_memory_task_data(file_path):
   run_data[output_columns].to_excel(processed_file_name, index=False)
   print(f"Saved: {processed_file_name}")
 
-#Calling the main function that executes everything 
-process_memory_task_data(file_path)
