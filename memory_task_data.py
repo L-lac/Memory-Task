@@ -3,11 +3,11 @@ import pandas as pd
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
 
-print(data['stimulus_start_time'].dtype)
-data['stimulus_start_time'] = pd.to_numeric(data['stimulus_start_time'], errors='coerce')
 #Identifying when a new run starts and assigns a number to each (1-4)
 data['Run'] = 1
 current_run = 1
+print("Differences between consecutive stimulus_start_time values:")
+print(data['stimulus_start_time'].diff())
 #Starts from the second row
 for row in range(1, len(data)):  
   previous_time = data['stimulus_start_time'].iloc[row - 1]
@@ -18,7 +18,10 @@ for row in range(1, len(data)):
     current_run += 1 
   #Assigns current run number to the row 
   data.loc[row, 'Run'] = current_run
+  
 print(f"Unique runs detected: {data['Run'].unique()}")
+print("First 20 rows of data with Run column:")
+print(data[['stimulus_start_time', 'Run']].head(20))
 
 #Debugging
 data.to_excel("Full_Data_With_Runs.xlsx", index=False)
