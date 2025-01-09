@@ -2,7 +2,9 @@ import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 def process_memory_task_data(file_path):
-""" Creates a functiom that processes the Excel file to generate 4 outputs, each corresponding to its individual run with recognition and study phases """ 
+  """ 
+  Creates a functiom that processes the Excel file to generate 4 outputs, each corresponding to its individual run with recognition and study phases 
+  """ 
   
   data = pd.read_excel(file_path)
   
@@ -54,7 +56,7 @@ def process_memory_task_data(file_path):
     run_data = data[data['Run'] == run]
 
     #Gets the stimulus_start_time for the second stimulus
-    sorted_times = run_data['stimulus_start_time'].sort_values().unique()
+    sorted_times = run_data['stimulus_start_time'].unique()
     onset_time = sorted_times[1]  
 
     #Assigns value to the Onset_Time column of this run
@@ -85,7 +87,7 @@ def process_memory_task_data(file_path):
     return None
     
   #Creates Material_Attribute column 
-  data['Material_Attribute'] = data.apply(classify_material_attribute, axis=1)
+  data['Material_Attribute'] = data.apply(material_attribute, axis=1)
 
   #--- Separating Data By Run ---
   for run in data['Run'].unique():
@@ -100,7 +102,7 @@ def process_memory_task_data(file_path):
 
     # Save the data for the current run into an Excel file
     output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
-    run_data.to_excel(output_file_name, index=False)
+    run_data[output_columns].to_excel(output_file_name, index=False)
     print(f"Saved: {output_file_name}")
 
 #Calling the main function that executes everything 
