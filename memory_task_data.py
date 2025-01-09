@@ -11,7 +11,7 @@ def process_memory_task_data(file_path):
   data['Run'] = (data['stimulus_start_time'].diff() < 0).cumsum() + 1
 
   # Debug: Print unique runs
-    print(f"Unique runs detected: {data['Run'].unique()}")
+  print(f"Unique runs detected: {data['Run'].unique()}")
 
   #--- Recognition Phase ---
 
