@@ -10,9 +10,11 @@ def process_memory_task_data(file_path):
   #Identifying when a new run starts and assigns a number to each (1-4)
   data['Run'] = (data['stimulus_start_time'].diff() < 0).cumsum() + 1
 
-  # Debug: Print unique runs
-  print(f"Unique runs detected: {data['Run'].unique()}")
+  #Process each run independently 
+  for run in data['Run'].unique():
+    run_data = data[data['Run'] == run].copy()
 
+  
   #--- Recognition Phase ---
 
   #Extracts Material Type from CondsFile column 
@@ -26,10 +28,10 @@ def process_memory_task_data(file_path):
     else:
       return None
   #runs the function we created above 
-  data['Material_Type'] = data['CondsFile'].apply(extract_material_type)
+  run_data['Material_Type'] = run_data['CondsFile'].apply(extract_material_type)
     
   #Calculating Response Time
-  data['Response_Time'] = data['stimulus_end_time'] - data['stimulus_start_time']
+  run_data['Response_Time'] = run_data['stimulus_end_time'] - run_data['stimulus_start_time']
 
   #Signal Detection Theory: 1 = correct response, 0 = incorrect  
   def signal_detection(row):
@@ -45,25 +47,19 @@ def process_memory_task_data(file_path):
       return None
         
   #axis=1 tells apply() function to run the function we created row by row 
-  data['Signal_Detection_Type'] = data.apply(signal_detection, axis=1)
-
+  run_data['Signal_Detection_Type'] = run_data.apply(signal_detection, axis=1)
+  
 
   #--- Study Phase ----
 
   #Onset time when "NewImg" turns into "Studied" --> 2nd stimulus_start_time of each run 
-  data['Onset_Time'] = None
-  for run in data['Run'].unique():
-    #Filters data for the current run
-    run_data = data[data['Run'] == run]
+  sorted_times = run_data['stimulus_start_time'].unique()
+  onset_time = sorted_times[1]  
+  run_data['Onset_Time'] = None
 
-    #Gets the stimulus_start_time for the second stimulus
-    onset_time = run_data['stimulus_start_time'].iloc[1] 
+  #Assigns value to the Onset_Time column of this run
+  run_data.loc[run_data['stimulus_start_time'] == onset_time, 'Onset_Time'] = onset_time
 
-    #Assigns value to the Onset_Time column of this run
-    data.loc[(data['Run'] == run) & (data['stimulus_start_time'] == onset_time), 'Onset_Time'] = onset_time
-
-     # Debug: Print the onset time for each run
-    print(f"Run {run}: Onset time set to {onset_time}")
     
   #living/nonliving, indoor/outdoor, likely/unlikely 
   def material_attribute(row):
@@ -90,23 +86,18 @@ def process_memory_task_data(file_path):
     return None
     
   #Creates Material_Attribute column 
-  data['Material_Attribute'] = data.apply(material_attribute, axis=1)
+  run_data['Material_Attribute'] = run_data.apply(material_attribute, axis=1)
 
-  #--- Separating Data By Run ---
-  for run in data['Run'].unique():
-    # Filter rows for the current run
-    run_data = data[data['Run'] == run]
+  #Specifying the output coloumns for the recognition and study phase
+  output_columns = [
+    'Material_Type', 'Response_Time', 'ConType',
+    'Condition', 'Recog1_Resp.corr', 'Signal_Detection_Type',
+    'Onset_Time', 'Material_Attribute']
 
-    #Specifying the output coloumns for the recognition and study phase
-    output_columns = [
-      'Material_Type', 'Response_Time', 'ConType',
-      'Condition', 'Recog1_Resp.corr', 'Signal_Detection_Type',
-      'Onset_Time', 'Material_Attribute']
-
-    # Save the data for the current run into an Excel file
-    output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
-    run_data[output_columns].to_excel(output_file_name, index=False)
-    print(f"Saved: {output_file_name}")
+  #Saves the data for the current run into an Excel file
+  output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
+  run_data[output_columns].to_excel(output_file_name, index=False)
+  print(f"Saved: {output_file_name}")
 
 #Calling the main function that executes everything 
 process_memory_task_data(file_path)
