@@ -1,7 +1,9 @@
+import os
 import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
+output_folder = "Memory_Task_Outputs"
 
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the previously used time
 data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
@@ -23,8 +25,6 @@ for run in data['Run'].unique():
   run_data = data[data['Run'] == run].copy()
   output_file_name = f"Run{int(run)}_Raw.xlsx"
   run_data.to_excel(output_file_name, index=False)
-  print(f"Saved: {output_file_name}")
-
   
 #--- Recognition Phase ---
 
@@ -97,7 +97,7 @@ for run in data['Run'].unique():
   run_data = run_data[output_columns]
 
   #Saves the final output for the current run 
-  processed_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
+  processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
   run_data[output_columns].to_excel(processed_file_name, index=False)
   print(f"Saved: {processed_file_name}")
 
