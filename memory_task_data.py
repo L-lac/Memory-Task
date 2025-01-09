@@ -10,6 +10,8 @@ def process_memory_task_data(file_path):
   #Identifying when a new run starts and assigns a number to each (1-4)
   data['Run'] = (data['stimulus_start_time'].diff() < 0).cumsum() + 1
 
+  # Debug: Print unique runs
+    print(f"Unique runs detected: {data['Run'].unique()}")
 
   #--- Recognition Phase ---
 
@@ -55,12 +57,14 @@ def process_memory_task_data(file_path):
     run_data = data[data['Run'] == run]
 
     #Gets the stimulus_start_time for the second stimulus
-    sorted_times = run_data['stimulus_start_time'].unique()
-    onset_time = sorted_times[1]  
+    onset_time = run_data['stimulus_start_time'].iloc[1] 
 
     #Assigns value to the Onset_Time column of this run
     data.loc[(data['Run'] == run) & (data['stimulus_start_time'] == onset_time), 'Onset_Time'] = onset_time
-  
+
+     # Debug: Print the onset time for each run
+    print(f"Run {run}: Onset time set to {onset_time}")
+    
   #living/nonliving, indoor/outdoor, likely/unlikely 
   def material_attribute(row):
     """Classifies if the material attribute is 8=living / 5=nonliving, 8=indoor / 5=outdoor, or 8=likely / 5=unlikely 
