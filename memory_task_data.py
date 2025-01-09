@@ -3,9 +3,11 @@ import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
+#Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
+os.makedirs(output_folder, exist_ok=True)
 
-#Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the previously used time
+#Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
 data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
 
 #Identifying when a new run starts and assigns a number to each (1-4)
