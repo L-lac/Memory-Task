@@ -2,9 +2,8 @@ import pandas as pd
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 def process_memory_task_data(file_path):
-  """ 
-  Creates a functiom that processes the Excel file to generate 4 outputs, each corresponding to its individual run with recognition and study phases 
-  """ 
+  """ Creates a functiom that processes the Excel file to generate 4 outputs, each corresponding to 
+  its individual run with recognition and study phases """ 
   
   data = pd.read_excel(file_path)
   
