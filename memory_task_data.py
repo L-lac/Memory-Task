@@ -62,13 +62,13 @@ def material_attribute(row):
   based on if the Material_Type is an Object, Scene, or Pair. """
     
   #When the numer = 8
-  if row['Recog1_Resp.keys'] == 'num_8':
+  if row['corrAns1'] == 'num_8':
     if row['Material_Type'] == 'Object': return 'Living'
     if row['Material_Type'] == 'Scene': return 'Indoor'
     if row['Material_Type'] == 'Pair': return 'Likely'
 
   #When the number = 5
-  elif row['Recog1_Resp.keys'] == 'num_5':
+  elif row['corrAns1'] == 'num_5':
     if row['Material_Type'] == 'Object': return 'Nonliving'
     if row['Material_Type'] == 'Scene': return 'Outdoor'
     if row['Material_Type'] == 'Pair': return 'Unlikely'
