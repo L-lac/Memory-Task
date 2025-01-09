@@ -76,10 +76,6 @@ def material_attribute(row):
 for run in data['Run'].unique():
   run_file_name = f"Run{int(run)}_Raw.xlsx"
   run_data = pd.read_excel(run_file_name)
-
-  #Rename stimulus_start_time to Onset_Time
-  #Part of Study Phase 
-  run_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
   
   #Processing functions + Calculating Response Time
   #axis=1 tells apply() function to run the function we created row by row 
@@ -87,6 +83,10 @@ for run in data['Run'].unique():
   run_data['Response_Time'] = run_data['stimulus_end_time'] - run_data['stimulus_start_time'] 
   run_data['Signal_Detection_Type'] = run_data.apply(signal_detection, axis=1)
   run_data['Material_Attribute'] = run_data.apply(material_attribute, axis=1) 
+
+  #Rename stimulus_start_time to Onset_Time
+  #Part of Study Phase 
+  run_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
 
   #Specifying the output coloumns for the recognition and study phase
   output_columns = [
