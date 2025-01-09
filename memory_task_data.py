@@ -3,6 +3,9 @@ import pandas as pd
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
 
+# Ensure stimulus_start_time column has no NaN values by forward-filling
+data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
+
 #Identifying when a new run starts and assigns a number to each (1-4)
 data['Run'] = 1
 current_run = 1
