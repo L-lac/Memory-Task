@@ -20,8 +20,8 @@ for row in range(1, len(data)):
   data.loc[row, 'Run'] = current_run
   
 print(f"Unique runs detected: {data['Run'].unique()}")
-print("First 20 rows of data with Run column:")
-print(data[['stimulus_start_time', 'Run']].head(20))
+print("Where drop should occur:")
+print(data['stimulus_start_time'].diff().iloc[60:100])
 
 #Debugging
 data.to_excel("Full_Data_With_Runs.xlsx", index=False)
