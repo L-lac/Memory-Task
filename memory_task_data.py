@@ -32,14 +32,10 @@ for run in data['Run'].unique():
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
-  if "object" in str(row).lower():
-    return "Object"
-  elif "scene" in str(row).lower():
-    return "Scene"
-  elif "pair" in str(row).lower():
-    return "Pair"
-  else:
-    return None
+  if "object" in str(row).lower(): return "Object"
+  elif "scene" in str(row).lower(): return "Scene"
+  elif "pair" in str(row).lower(): return "Pair"
+  else: return None
 
 #Signal Detection Theory: 1 = correct response, 0 = incorrect  
 def signal_detection(row):
@@ -51,8 +47,7 @@ def signal_detection(row):
   #Combined Condition to group together New and Lure 
   elif row['Condition'] in ['New', 'Lure']:
     return 'CR' if row['Recog1_Resp.corr'] == 1 else 'FA'
-  else:
-    return None
+  else: return None
 #-----------------------------------------
 
 #living/nonliving, indoor/outdoor, likely/unlikely 
