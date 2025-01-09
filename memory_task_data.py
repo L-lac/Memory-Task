@@ -9,10 +9,20 @@ def process_memory_task_data(file_path):
   
   #Identifying when a new run starts and assigns a number to each (1-4)
   data['Run'] = (data['stimulus_start_time'].diff() < 0).cumsum() + 1
+  print(f"Unique runs detected: {data['Run'].unique()}")
 
-  #Process each run independently 
+  #Separate each run into its own file  
   for run in data['Run'].unique():
+    #Filters each row for the current run 
     run_data = data[data['Run'] == run].copy()
+    output_file_name = f"Run{int(run)}_Raw.xlsx"
+    run_data.to_excel(output_file_name, index=False)
+    print(f"Saved: {output_file_name}")
+
+  #---Processing each run for the study phase onset time ---
+  #Initializes the column
+  run_data['Onset_Time'] = None
+  run_data.loc[run_data.index[1], 'Onset_Time'] = run_data['stimulus_start_time'].iloc[1]
 
   
   #--- Recognition Phase ---
@@ -53,12 +63,9 @@ def process_memory_task_data(file_path):
   #--- Study Phase ----
 
   #Onset time when "NewImg" turns into "Studied" --> 2nd stimulus_start_time of each run 
-  sorted_times = run_data['stimulus_start_time'].unique()
-  onset_time = sorted_times[1]  
-  run_data['Onset_Time'] = None
-
+  
   #Assigns value to the Onset_Time column of this run
-  run_data.loc[run_data['stimulus_start_time'] == onset_time, 'Onset_Time'] = onset_time
+  
 
     
   #living/nonliving, indoor/outdoor, likely/unlikely 
@@ -95,9 +102,9 @@ def process_memory_task_data(file_path):
     'Onset_Time', 'Material_Attribute']
 
   #Saves the data for the current run into an Excel file
-  output_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
-  run_data[output_columns].to_excel(output_file_name, index=False)
-  print(f"Saved: {output_file_name}")
+  processed_file_name = f"Run{int(run)}_Memory_Task_Output.xlsx"
+  run_data[output_columns].to_excel(processed_file_name, index=False)
+  print(f"Saved: {processed_file_name}")
 
 #Calling the main function that executes everything 
 process_memory_task_data(file_path)
