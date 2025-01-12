@@ -100,7 +100,6 @@ for run in data['Run'].unique():
   #Specifying columns for Study Phase  
   study_columns = [
     'Onset_Time', 'Condition', 'Signal_Detection_Type', 'Material_Attribute' ]
-  study_data = study_data[study_columns]
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
