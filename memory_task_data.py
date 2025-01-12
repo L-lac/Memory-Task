@@ -1,5 +1,8 @@
 import os
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Alignment
 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 data = pd.read_excel(file_path)
@@ -27,8 +30,6 @@ for run in data['Run'].unique():
   run_data = data[data['Run'] == run].copy()
   output_file_name = f"Run{int(run)}_Raw.xlsx"
   run_data.to_excel(output_file_name, index=False)
-  
-#--- Recognition Phase ---
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
@@ -48,7 +49,6 @@ def signal_detection(row):
   elif row['Condition'] in ['New', 'Lure']:
     return 'CR' if row['Recog1_Resp.corr'] == 1 else 'FA'
   else: return None
-#-----------------------------------------
 
 #living/nonliving, indoor/outdoor, likely/unlikely 
 #Part of Study Phase
@@ -81,20 +81,53 @@ for run in data['Run'].unique():
   run_data['Signal_Detection_Type'] = run_data.apply(signal_detection, axis=1)
   run_data['Material_Attribute'] = run_data.apply(material_attribute, axis=1) 
 
-  #Rename stimulus_start_time to Onset_Time
-  #Part of Study Phase 
+  #Rename stimulus_start_time to Onset_Time 
   run_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
 
-  #Specifying the output coloumns for the recognition and study phase
-  output_columns = [
+  #Specifying columns for Recognition Phase
+  recognition_columns = [
     'Material_Type', 'Response_Time', 'ConType',
     'Condition', 'Recog1_Resp.corr', 'Signal_Detection_Type',
-    'Onset_Time', 'Material_Attribute']
+    'Onset_Time', 'Material_Attribute' ]
+  
+  #---- Study Phase Processing ----
 
-  run_data = run_data[output_columns]
+  #Filters Recognition data to include only rows where condition = old/lure and saves it as a new DataFrame 
+  study_data = run_data[run_data['Condition'].isin(['Old', 'Lure'])].copy()
+  #Onset time is always 3 secs
+  study_data['Onset_Time'] = 3  
+
+  #Specifying columns for Study Phase  
+  study_columns = [
+    'Onset_Time', 'Condition', 'Signal_Detection_Type', 'Material_Attribute' ]
+  study_data = study_data[study_columns]
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
-  run_data[output_columns].to_excel(processed_file_name, index=False)
-  print(f"Saved: {processed_file_name}")
+  
+  #--- Using openpyxl to add merged headers: Recognition and Study phase ---
+
+  wb = Workbook()
+  ws = wb.active
+
+  #Creating the "Recognition Phase" header + Adding the columns created in Pandas
+  ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(recognition_columns))
+  ws.append(["Recognition Phase"])
+  ws.cell(row=1, column=1).alignment = Alignment(horizontal='center')
+  
+  for row in dataframe_to_rows(run_data[recognition_columns], index=False, header=True):
+    ws.append(row)
+
+  #Creating "Study Phase" header + loading in columns 
+  study_start_col = len(recognition_columns) + 1
+  ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
+  ws.append(["Study Phase"])
+  ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
+    
+  for row in dataframe_to_rows(study_data[study_columns], index=False, header=True):
+    ws.append(row)
+
+  #Saving the workbook
+  wb.save(processed_file_name)
+  print(f"Saved combined output for Run {run} with headers: {processed_file_name}")
 
