@@ -15,7 +15,7 @@ This project processes memory task data containing Recognition and Study phase i
 1. Data Loading: reads the inputted file using pandas.
 2. Run Detection: Identifies unique runs by analyzing stimulus_start_time. The onset time of each stimulus increases linearly, thus by detecting when there is a sudden "drop/reset" we can identify the start of a new run.
 3. Recognition Phase Processing: Extracts material type, calculates response times, and applies signal detection theory classifications.
-4. Study Phase Processing: Filters the recognition data for only the old and lure conditions, adds onset times (3 secs), extracts the material attributes, and recognition accuracy.
+4. Study Phase Processing: Filters the recognition data for only the old and lure conditions, adds onset times (3 secs), extracts the material attributes, and recognition accuracy based on the recognition phase. 
 5. Excel Outputs: Combines recognition and study phase results into a Excel file, unique to each run.
 
 ## 📜 Key Functions
