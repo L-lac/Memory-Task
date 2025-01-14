@@ -18,7 +18,7 @@ This project processes memory task data containing Recognition and Study phase i
 4. Study Phase Processing: Filters the recognition data for only the old and lure conditions, adds onset times (3 secs), extracts the material attributes, and recognition accuracy based on the recognition phase. 
 5. Excel Outputs: Combines recognition and study phase results into a Excel file, unique to each run.
 
-## 📜 Key Functions
+## 📜 Key Functions:
 ```python
 def extract_material_type(row):
     if "object" in str(row).lower(): return "Object"
