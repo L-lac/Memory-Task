@@ -1,6 +1,6 @@
 # 🧠 Memory Task Data Processing
 
-## Project Overview:
+## 🎲 Project Overview:
 This project processes memory task data containing Recognition and Study phase information. The recognition phase contains all conditions, while the study phase only contains old and lure conditions. The script automates key processing tasks, such as identifying experimental runs, extracting metrics, and generating well-organized Excel outputs.
 
 ## 🛠️ Tools and Libraries Used:
@@ -26,7 +26,7 @@ def extract_material_type(row):
     elif "pair" in str(row).lower(): return "Pair"
     else: return None
 ```
-### Purpose: identifies whether a stimulus is an object, scene, or pair
+#### Purpose: identifies whether a stimulus is an object, scene, or pair
 - Example input: object_1
 - Output: object
 
@@ -38,7 +38,7 @@ def signal_detection(row):
         return 'CR' if row['Recog1_Resp.corr'] == 1 else 'FA'
     else: return None
 ```
-### Purpose: categorizes responses based on recognition accuracy 
+#### Purpose: categorizes responses based on recognition accuracy 
 - Old condition: Hit or Miss
 - New/Lure: Correct Rejection (CR) or False Alarm (FA)
 
@@ -54,7 +54,7 @@ def material_attribute(row):
     if row['Material_Type'] == 'Pair': return 'Unlikely'
   return None
 ```
-### Purpose: Assigns material attribtues based on the material type 
+#### Purpose: Assigns material attribtues based on the material type 
 - Object: 8 = living, 5 = nonliving
 - Scene: 8 = inside, 5 = outside
 - Pair: 8 = likely, 5 = unlikely
