@@ -29,7 +29,6 @@ for run in data['Run'].unique():
   run_data = data[data['Run'] == run].copy()
   run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")
   run_data.to_excel(run_file_name, index=False)
-  print(f"Saved raw data for Run {run} to {run_file_name}")
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
@@ -111,22 +110,26 @@ for run in data['Run'].unique():
   wb = Workbook()
   ws = wb.active
 
-  #Creating the "Recognition Phase" header + Adding the columns created in Pandas
+  #Creating "Recognition Phase" header 
   ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(recognition_columns))
   ws.append(["Recognition Phase"])
   ws.cell(row=1, column=1).alignment = Alignment(horizontal='center')
   
-  for row in dataframe_to_rows(run_data[recognition_columns], index=False, header=True):
-    ws.append(row)
+  #Using a nested for loop to add Recognition Phase Data created in pandas
+  for num_row, row in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
+    for num_col, value in enumerate(row, start=1):  
+      ws.cell(row=num_row, column=num_col, value=cell_value)
 
-  #Creating "Study Phase" header + loading in columns 
-  study_start_col = len(recognition_columns) + 1
+  #Creating "Study Phase" header + Leaves gap between two phases 
+  study_start_col = len(recognition_columns) + 2  # Leave a gap of 1 column
   ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
-  ws.append(["Study Phase"])
+  ws.cell(row=1, column=study_start_col, value="Study Phase")
   ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
-    
-  for row in dataframe_to_rows(study_data[study_columns], index=False, header=True):
-    ws.append(row)
+
+  #Adding in Study Phase data
+  for num_row, row in enumerate(dataframe_to_rows(study_data[study_columns], index=False, header=True), start=2):
+    for num_col, value in enumerate(row, start=study_start_col):  # Start writing at the study_start_col
+      ws.cell(row=num_row, column=num_col, value=cell_value)
 
   #Saving the workbook
   wb.save(processed_file_name)
