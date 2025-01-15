@@ -90,7 +90,7 @@ for run in data['Run'].unique():
 
   #Specifying columns for Recognition Phase
   recognition_columns = [
-    'Material_Type', 'NewImg', 'ConType', 'Condition', 'Onset_Time', 'Response_Time', 'Signal_Detection_Type', 'Material_Attribute' ]
+    'Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Onset_Time', 'Response_Time', 'Signal_Detection_Type', 'Material_Attribute' ]
   
   #---- Study Phase Processing ----
 
@@ -105,7 +105,7 @@ for run in data['Run'].unique():
 
   #Specifying columns for Study Phase  
   study_columns = [
-    'NewImg', 'Onset_Time', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute' ]
+    'NewImg', 'ImageFile', 'Onset_Time', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute' ]
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
