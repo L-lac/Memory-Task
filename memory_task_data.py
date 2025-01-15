@@ -91,7 +91,7 @@ for run in data['Run'].unique():
   
   #---- Study Phase Processing ----
 
-  #Filters Recognition data to exclude all rows corresponding to new images 
+  #Filters Recognition data to exclude all rows corresponding to new images and derives recognition accuracy based on data within the recognition phase 
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
   #Onset time is always 3 secs
   study_data['Onset_Time'] = 3  
