@@ -122,9 +122,12 @@ for run in data['Run'].unique():
 
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
-  for num_row, row in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row, start=1):  
-      ws.cell(row=num_row, column=num_col, value=value)
+  for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
+    for num_col, value in enumerate(row_data):
+      #Only write non-empty values -> fixes weird formatting issue generated from pandas 
+      if value is not None:
+        ws.cell(row=num_row, column=num_col + 1, value=value)
+
 
   #Creating "Study Phase" header + Leaves gap between two phases 
   study_start_col = len(recognition_columns) + 2  
