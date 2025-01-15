@@ -93,6 +93,10 @@ for run in data['Run'].unique():
 
   #Filters Recognition data to exclude all rows corresponding to new images and derives recognition accuracy based on data within the recognition phase 
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
+
+  #Renames Recog1_Resp.corr column to Recognition_Accuracy 
+  study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
+  
   #Onset time is always 3 secs
   study_data['Onset_Time'] = 3  
 
