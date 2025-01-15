@@ -24,6 +24,13 @@ for row in range(1, len(data)):
   #Assigns current run number to the row 
   data.loc[row, 'Run'] = current_run
 
+#Separates each run into its own Excel file for future processing 
+for run in data['Run'].unique():
+  run_data = data[data['Run'] == run].copy()
+  run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")
+  run_data.to_excel(run_file_name, index=False)
+  print(f"Saved raw data for Run {run} to {run_file_name}")
+
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
   if "object" in str(row).lower(): return "Object"
