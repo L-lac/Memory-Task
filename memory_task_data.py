@@ -131,7 +131,7 @@ for run in data['Run'].unique():
 
 
   #Creating "Study Phase" header + Leaves gap between two phases 
-  study_start_col = len(recognition_columns) + 2  
+  study_start_col = len(recognition_columns) + 3  
   ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
   ws.cell(row=1, column=study_start_col, value="Study Phase")
   ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
