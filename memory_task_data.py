@@ -128,7 +128,14 @@ for run in data['Run'].unique():
       #Only write non-empty values -> fixes weird formatting issue generated from pandas 
       if value is not None:
         ws.cell(row=num_row, column=num_col + 1, value=value)
+        
+    #Fixes empty rows in Recognition Phase (Occurs in Run 1 only)
+    if run == 1:
+      max_column = len(recognition_columns)
 
+      for row in range(ws.max_row, 1, -1):  
+        if all(ws.cell(row=row, column=col).value in [None, ""] for col in range(1, max_column + 1)):
+          ws.delete_rows(row)
 
   #Creating "Study Phase" header + Leaves gap between two phases 
   study_start_col = len(recognition_columns) + 3  
