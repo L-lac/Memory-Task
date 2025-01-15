@@ -10,6 +10,9 @@ data = pd.read_excel(file_path)
 output_folder = "Memory_Task_Outputs"
 os.makedirs(output_folder, exist_ok=True)
 
+#Create a temporary directory for raw files
+temp_dir = tempfile.TemporaryDirectory()
+
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
 data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
 
@@ -24,11 +27,12 @@ for row in range(1, len(data)):
   #Assigns current run number to the row 
   data.loc[row, 'Run'] = current_run
 
-#Separates each run into its own Excel file for future processing 
+#Saves raw files to the temporary directory
 for run in data['Run'].unique():
   run_data = data[data['Run'] == run].copy()
-  run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")
+  run_file_name = os.path.join(temp_dir.name, f"Run{int(run)}_Raw.xlsx")
   run_data.to_excel(run_file_name, index=False)
+
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
@@ -70,7 +74,7 @@ def material_attribute(row):
   
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
-  run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")  
+  run_file_name = os.path.join(temp_dir.name, f"Run{int(run)}_Raw.xlsx")
   run_data = pd.read_excel(run_file_name)
   
   #Processing functions + Calculating Response Time
