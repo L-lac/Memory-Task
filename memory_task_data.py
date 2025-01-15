@@ -13,23 +13,16 @@ os.makedirs(output_folder, exist_ok=True)
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
 data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
 
-#Identifying when a new run starts and assigns a number to each (1-4)
+#Identifying when a new run starts and assigns a number to each
 data['Run'] = 1
 current_run = 1
-#Starts from the second row
+
+#Increment run # by 1 if a reset is detected -> when the current time is < the previous time
 for row in range(1, len(data)):  
-  #Increment run # by 1 if a reset is detected -> when the current time is < the previous time
   if data['stimulus_start_time'].iloc[row] < data['stimulus_start_time'].iloc[row - 1]:
     current_run += 1 
   #Assigns current run number to the row 
   data.loc[row, 'Run'] = current_run
-
-#--- Processing Each Run ---  
-for run in data['Run'].unique():
-  #Filters each row for the current run 
-  run_data = data[data['Run'] == run].copy()
-  output_file_name = f"Run{int(run)}_Raw.xlsx"
-  run_data.to_excel(output_file_name, index=False)
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
@@ -38,8 +31,9 @@ def extract_material_type(row):
   elif "pair" in str(row).lower(): return "Pair"
   else: return None
 
-#Signal Detection Theory: 1 = correct response, 0 = incorrect  
+#Signal Detection Theory: Based on Recog1_Resp.corr column -> 1 = correct response, 0 = incorrect  
 def signal_detection(row):
+  
   #Old pics: 1 = Hit, 0 = Miss
   if row['Condition'] == 'Old':
     return 'Hit' if row['Recog1_Resp.corr'] == 1 else 'Miss'
@@ -50,8 +44,7 @@ def signal_detection(row):
     return 'CR' if row['Recog1_Resp.corr'] == 1 else 'FA'
   else: return None
 
-#living/nonliving, indoor/outdoor, likely/unlikely 
-#Part of Study Phase
+#Determines if the material type is living/nonliving, indoor/outdoor, or likely/unlikely 
 def material_attribute(row):
   """Classifies if the material attribute is 8=living / 5=nonliving, 8=indoor / 5=outdoor, or 8=likely / 5=unlikely 
   based on if the Material_Type is an Object, Scene, or Pair. """
@@ -69,8 +62,9 @@ def material_attribute(row):
     if row['Material_Type'] == 'Pair': return 'Unlikely'
   return None
   
-#Processes each previously stored Excel file to generate final outputs 
+#Processes each run to generate final outputs 
 for run in data['Run'].unique():
+  run_data = data[data['Run'] == run].copy()
   run_file_name = f"Run{int(run)}_Raw.xlsx"
   run_data = pd.read_excel(run_file_name)
   
@@ -86,25 +80,23 @@ for run in data['Run'].unique():
 
   #Specifying columns for Recognition Phase
   recognition_columns = [
-    'Material_Type', 'Response_Time', 'ConType',
-    'Condition', 'Recog1_Resp.corr', 'Signal_Detection_Type',
-    'Onset_Time', 'Material_Attribute' ]
+    'Material_Type', 'NewImg', 'ConType', 'Condition', 'Onset_Time', 'Response_Time', 'Signal_Detection_Type', 'Material_Attribute' ]
   
   #---- Study Phase Processing ----
 
-  #Filters Recognition data to include only rows where condition = old/lure and saves it as a new DataFrame 
-  study_data = run_data[run_data['Condition'].isin(['Old', 'Lure'])].copy()
+  #Filters Recognition data to exclude all rows corresponding to new images 
+  study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
   #Onset time is always 3 secs
   study_data['Onset_Time'] = 3  
 
   #Specifying columns for Study Phase  
   study_columns = [
-    'Onset_Time', 'Condition', 'Signal_Detection_Type', 'Material_Attribute' ]
+    'NewImg', 'Onset_Time', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute' ]
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
   
-  #--- Using openpyxl to add merged headers: Recognition and Study phase ---
+  #--- Using openpyxl to format the headers ---
 
   wb = Workbook()
   ws = wb.active
