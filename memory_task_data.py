@@ -110,10 +110,12 @@ for run in data['Run'].unique():
   wb = Workbook()
   ws = wb.active
 
-  #Creating "Recognition Phase" header 
-  ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(recognition_columns))
-  ws.append(["Recognition Phase"])
-  ws.cell(row=1, column=1).alignment = Alignment(horizontal='center')
+  #Creating "Recognition Phase" header + Fixing the formatting 
+  recognition_start_col = 1  
+  ws.merge_cells(start_row=1, start_column=recognition_start_col, end_row=1, end_column=len(recognition_columns))
+  ws.cell(row=1, column=recognition_start_col, value="Recognition Phase")
+  ws.cell(row=1, column=recognition_start_col).alignment = Alignment(horizontal='center')
+
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
   for num_row, row in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
