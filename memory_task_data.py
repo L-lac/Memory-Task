@@ -71,8 +71,7 @@ def material_attribute(row):
   
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
-  run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")  # This creates the full path
-  print(f"Reading raw file: {run_file_name}")  # Debugging log to confirm the file path
+  run_file_name = os.path.join(output_folder, f"Run{int(run)}_Raw.xlsx")  
   run_data = pd.read_excel(run_file_name)
   
   #Processing functions + Calculating Response Time
