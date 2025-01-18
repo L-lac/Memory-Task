@@ -15,7 +15,7 @@ os.makedirs(output_folder, exist_ok=True)
 temp_dir = tempfile.TemporaryDirectory()
 
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
-data['stimulus_start_time'] = data['stimulus_start_time'].fillna(method='ffill')
+data['stimulus_start_time'] = data['stimulus_start_time'].ffill()
 
 #Identifying when a new run starts and assigns a number to each
 data['Run'] = 1
@@ -144,7 +144,7 @@ for run in data['Run'].unique():
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
   for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row, start=1):
+    for num_col, value in enumerate(row_data, start=1):
       ws.cell(row=num_row, column=num_col, value=value)
 
   #Creating "Study Phase" header + Leaves gap between two phases 
