@@ -76,7 +76,7 @@ def material_attribute(row):
 #Calculates Recognition Accuracy by comparing the responses from 'Recog1_Resp.keys' to 'corrAns1'  
 def recognition_accuracy(run_data):
   #Step 1: Disregard trials with None in Recog1_Resp.keys 
-  run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
+  run_data.loc[~valid_trials, 'Recog1_Resp.corr'] = None
   
   #Step 2: Substitute '1' with 'num_8' and '2' with 'num_5'
   run_data['Recog1_Resp.keys'] = run_data['Recog1_Resp.keys'].replace({
@@ -88,7 +88,9 @@ def recognition_accuracy(run_data):
   valid_trials = run_data['Recog1_Resp.keys'].notna()
   #Matched trials marked as 1, mismatched as 0
   run_data.loc[valid_trials, 'Recog1_Resp.corr'] = (
-    run_data.loc[valid_trials, 'corrAns1'] == run_data.loc[valid_trials, 'Recog1_Resp.keys'] ).astype(int) 
+    run_data.loc[valid_trials, 'corrAns1'] == run_data.loc[valid_trials, 'Recog1_Resp.keys'] 
+  ).astype(int) 
+  
   return run_data
   
 #Processes each run to generate final outputs 
