@@ -77,24 +77,26 @@ def material_attribute(row):
 def recognition_accuracy(run_data):
   #Step 1: Disregard trials with None in Recog1_Resp.keys 
   run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
+  
   #Step 2: Substitute '1' with 'num_8' and '2' with 'num_5'
   run_data['Recog1_Resp.keys'] = run_data['Recog1_Resp.keys'].replace({
   1: 'num_8',
   2: 'num_5'
   })
+  
   #Step 3: Recalculate Recog1_Resp.corr only for valid trials 
   valid_trials = run_data['Recog1_Resp.keys'].notna()
   #Matched trials marked as 1, mismatched as 0
   run_data.loc[valid_trials, 'Recog1_Resp.corr'] = (
-    run_data.loc[valid_trials, 'corrAns1'] == run_data.loc[valid_trials, 'Recog1_Resp.keys']
-  ).astype(int) 
-
+    run_data.loc[valid_trials, 'corrAns1'] == run_data.loc[valid_trials, 'Recog1_Resp.keys'] ).astype(int) 
   return run_data
   
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
   run_file_name = os.path.join(temp_dir.name, f"Run{int(run)}_Raw.xlsx")
   run_data = pd.read_excel(run_file_name)
+  
+  run_data = recognition_accuracy(run_data)
   
   #Processing functions + Calculating Response Time
   #axis=1 tells apply() function to run the function we created row by row 
@@ -142,18 +144,8 @@ for run in data['Run'].unique():
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
   for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row_data):
-      #Only write non-empty values -> fixes weird formatting issue generated from pandas 
-      if value is not None:
-        ws.cell(row=num_row, column=num_col + 1, value=value)
-        
-    #Fixes empty rows in Recognition Phase (Occurs in Run 1 only)
-    if run == 1:
-      max_column = len(recognition_columns)
-
-      for row in range(ws.max_row, 1, -1):  
-        if all(ws.cell(row=row, column=col).value in [None, ""] for col in range(1, max_column + 1)):
-          ws.delete_rows(row)
+    for num_col, value in enumerate(row, start=1):
+      ws.cell(row=num_row, column=num_col, value=value)
 
   #Creating "Study Phase" header + Leaves gap between two phases 
   study_start_col = len(recognition_columns) + 3  
