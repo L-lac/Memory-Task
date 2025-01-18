@@ -72,7 +72,9 @@ def material_attribute(row):
     if row['Material_Type'] == 'Scene': return 'Outdoor'
     if row['Material_Type'] == 'Pair': return 'Unlikely'
   return None
-  
+
+#Calculates Recognition Accuracy by comparing the responses from 'Recog1_Resp.keys' to 'corrAns1'  
+
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
   run_file_name = os.path.join(temp_dir.name, f"Run{int(run)}_Raw.xlsx")
