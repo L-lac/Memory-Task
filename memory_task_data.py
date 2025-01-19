@@ -80,13 +80,10 @@ def recognition_accuracy(run_data):
   2: 'num_5'
   })
   
-  #Calculate Recog1_Resp.corr only for valid trials 
-  for index, row in run_data.iterrows():
-    if pd.notna(row['Recog1_Resp.keys']): 
-      run_data.at[index, 'Recog1_Resp.corr'] = int(row['Recog1_Resp.keys'] == row['corrAns1'])
-    else:
-      #Leave Recog1_Resp.corr as None for invalid trials
-      run_data.at[index, 'Recog1_Resp.corr'] = None
+  #Compare Recog1_Resp.keys with corrAns1 and assign 1 for match, 0 for mismatch
+  run_data['Recog1_Resp.corr'] = (run_data['Recog1_Resp.keys'] == run_data['corrAns1']).astype(int)
+  #Skip over invalid trials -> "None" 
+  run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
   return run_data
   
 #Processes each run to generate final outputs 
