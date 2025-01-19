@@ -81,7 +81,7 @@ def recognition_accuracy(run_data):
   })
   
   #Calculate Recog1_Resp.corr only for valid trials 
-  for each, row in run_data.iterrows():
+  for index, row in run_data.iterrows():
     if pd.notna(row['Recog1_Resp.keys']): 
       run_data.at[index, 'Recog1_Resp.corr'] = int(row['Recog1_Resp.keys'] == row['corrAns1'])
     else:
