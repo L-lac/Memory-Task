@@ -44,7 +44,6 @@ def extract_material_type(row):
 
 #Signal Detection Theory: Based on Recog1_Resp.corr column -> 1 = correct response, 0 = incorrect  
 def signal_detection(row):
-  
   #Old pics: 1 = Hit, 0 = Miss
   if row['Condition'] == 'Old':
     return 'Hit' if row['Recog1_Resp.corr'] == 1 else 'Miss'
