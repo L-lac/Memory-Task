@@ -84,21 +84,19 @@ def recognition_accuracy(run_data):
   2: 'num_5'
   })
   
-  #Step 3: Recalculate Recog1_Resp.corr only for valid trials 
-  valid_trials = run_data['Recog1_Resp.keys'].notna()
-  #Matched trials marked as 1, mismatched as 0
-  run_data.loc[valid_trials, 'Recog1_Resp.corr'] = (
-    run_data.loc[valid_trials, 'corrAns1'] == run_data.loc[valid_trials, 'Recog1_Resp.keys'] 
-  ).astype(int) 
-  
+  #Step 3: Calculate Recog1_Resp.corr only for valid trials 
+  for each, row in run_data.iterrows():
+    if pd.notna(row['Recog1_Resp.keys']): 
+      run_data.at[index, 'Recog1_Resp.corr'] = int(row['Recog1_Resp.keys'] == row['corrAns1'])
+    else:
+      #Leave Recog1_Resp.corr as None for invalid trials
+      run_data.at[index, 'Recog1_Resp.corr'] = None
   return run_data
   
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
   run_file_name = os.path.join(temp_dir.name, f"Run{int(run)}_Raw.xlsx")
   run_data = pd.read_excel(run_file_name)
-  
-  run_data = recognition_accuracy(run_data)
   
   #Processing functions + Calculating Response Time
   #axis=1 tells apply() function to run the function we created row by row 
@@ -110,6 +108,9 @@ for run in data['Run'].unique():
   #Rename stimulus_start_time to Onset_Time 
   run_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
 
+  #Calculate Recognition Accuracy 
+  run_data = recognition_accuracy(run_data)
+  
   #Specifying columns for Recognition Phase
   recognition_columns = [
     'Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Onset_Time', 'Response_Time', 'Signal_Detection_Type', 'Material_Attribute' ]
