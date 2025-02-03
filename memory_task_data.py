@@ -106,7 +106,7 @@ for run in recognition_data['Run'].unique():
   
   #Matches study images with recognition phase
   merged_study_data = run_study_data.merge(
-    run_data[['ImageFile', 'Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
+    run_data[['NewImg', 'ImageFile', 'Material_Type','Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
     on='ImageFile',
     how='left'
   )
@@ -117,7 +117,7 @@ for run in recognition_data['Run'].unique():
   merged_study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
 
   #Specifying columns for Study Phase  
-  study_columns = ['NewImg', 'ImageFile', 'Msterial_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  study_columns = ['NewImg', 'ImageFile', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
