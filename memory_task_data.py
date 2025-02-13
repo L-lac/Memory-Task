@@ -1,10 +1,27 @@
 import os
+import glob
+import shutil #May delete, for altering folders 
 import pandas as pd
 import tempfile 
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Alignment
 
+#Private server not stored locally 
+BASE_DIR = "/path/to/data"  
+FMRI_FOLDER = os.path.join(BASE_DIR, "fmri")
+
+#Find mri folder based on subject #
+def find_beh_files()
+  for subject_folder in glob.glob(os.path.join(mri_folder, "*")):
+    if os.path.isdir(subject_folder) 
+
+    #Locate mri files using recursive method 
+    mri_files = glob.glob(os.path.join(subjwct_folder, "**", BEHAVIORAL_PATTERN), recursive=True)
+    for file in behavioral_files:
+      output_folder = "Memory_Task_Outputs"
+      os.makedirs(output_folder, exist_ok=True)
+    
 #File Paths
 recognition_file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35.528.csv"
