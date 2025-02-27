@@ -83,11 +83,14 @@ def recognition_accuracy(run_data):
   
 #Searches for a Obj, Scn, or Pair ID within ImageFile column of study phase and then matches it to Recognition
 #Uses re module to search for strings in a file path (study phase ImageFile column) then matches it to Recognition
-#Runs in recursive loop 
 def extract_id(filepath):
-    match = re.search(r'(Obj\d+|Scn\d+|Pair\d+)', str(filepath), re.IGNORECASE)
-    return match.group(1) if match else None
+  match = re.search(r'(Obj\d+|Scn\d+|Pair\d+)', str(filepath), re.IGNORECASE)
+  return match.group(1) if match else None
   
+#Creates ID column in both datasets using the re module to match later 
+recognition_data['ItemID'] = recognition_data['ImageFile'].apply(extract_item_id)
+study_data['ItemID'] = study_data['ImageFile'].apply(extract_item_id)
+
 #Processes each run to generate final outputs 
 for run in recognition_data['Run'].unique():
   run_data = recognition_data[recognition_data['Run'] == run].copy()
@@ -106,7 +109,7 @@ for run in recognition_data['Run'].unique():
   run_data = recognition_accuracy(run_data)
   
   #Specifying columns for Recognition Phase
-  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
+  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ItemID', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
   
   #---- Study Phase Processing ----
 
@@ -116,10 +119,8 @@ for run in recognition_data['Run'].unique():
   
   #Matches study images with recognition phase
   merged_study_data = run_study_data.merge(
-    run_data[['NewImg', 'ImageFile', 'Material_Type','Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
-    on='ImageFile',
-    how='left'
-  )
+    run_data[['NewImg', 'ImageFile','ItemID', 'Material_Type','Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
+    on='ImageFile', how='left')
   
   #Study phase duration is always 3 secs
   merged_study_data['Duration'] = 3
