@@ -88,8 +88,8 @@ def extract_id(filepath):
   return match.group(1) if match else None
   
 #Creates ID column in both datasets using the re module to match later 
-recognition_data['ItemID'] = recognition_data['ImageFile'].apply(extract_item_id)
-study_data['ItemID'] = study_data['ImageFile'].apply(extract_item_id)
+recognition_data['ItemID'] = recognition_data['ImageFile'].apply(extract_id)
+study_data['ItemID'] = study_data['ImageFile'].apply(extract_id)
 
 #Processes each run to generate final outputs 
 for run in recognition_data['Run'].unique():
