@@ -117,7 +117,7 @@ for run in recognition_data['Run'].unique():
   #Renmes stimulus_start_time to Onset_Time
   run_study_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
   #Study phase duration is always 3 secs
-  merged_study_data['Duration'] = 3
+  run_study_data['Duration'] = 3
   
   #Matches study images with recognition phase
   merged_study_data = run_study_data.merge(
