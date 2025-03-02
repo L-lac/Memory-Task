@@ -147,8 +147,7 @@ for run in recognition_data['Run'].unique():
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
   for num_row, row_data in enumerate(dataframe_to_rows(run_data, index=False, header=True), start=2):
-    row_subset = [row_data[run_data.columns.get_loc(col)]
-      for col in recognition_columns if col in run_data.columns]
+    row_subset = [row_data[i] for i in range(min(len(row_data), len(run_data.columns)))]  # Ensure within bounds
     for num_col, value in enumerate(row_subset, start=recognition_start_col):
       ws.cell(row=num_row, column=num_col, value=value)
 
@@ -159,10 +158,9 @@ for run in recognition_data['Run'].unique():
   ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
 
   #Adding in Study Phase data
-  for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data[study_columns], index=False, header=True), start=2):
-    row_subset = [row_data[merged_study_data.columns.get_loc(col)]
-      for col in study_columns if col in merged_study_data.columns]
-    for num_col, value in enumerate(row_data, start=study_start_col):
+  for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data, index=False, header=True), start=2):
+    row_subset = [row_data[i] for i in range(min(len(row_data), len(merged_study_data.columns)))]  # Prevent IndexError
+    for num_col, value in enumerate(row_subset, start=study_start_col):
       ws.cell(row=num_row, column=num_col, value=value)
 
   #Saving the workbook
