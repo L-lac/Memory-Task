@@ -116,19 +116,19 @@ for run in recognition_data['Run'].unique():
   run_study_data = study_data.copy()
   #Renmes stimulus_start_time to Onset_Time
   run_study_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
+  #Study phase duration is always 3 secs
+  merged_study_data['Duration'] = 3
   
   #Matches study images with recognition phase
   merged_study_data = run_study_data.merge(
     run_data[['NewImg', 'ImageFile','ItemID', 'Material_Type','Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
-    on='ImageFile', how='left')
-  
-  #Study phase duration is always 3 secs
-  merged_study_data['Duration'] = 3
+    on='ItemID', how='left', suffixes=('_study', '_recog'))
+
   #Renames recognition accuracy column for study phase
   merged_study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
 
   #Specifying columns for Study Phase  
-  study_columns = ['NewImg', 'ImageFile', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  study_columns = ['NewImg_study', 'ImageFile_study', 'ItemID', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
@@ -146,8 +146,10 @@ for run in recognition_data['Run'].unique():
 
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
-  for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row_data, start=1):
+  for num_row, row_data in enumerate(dataframe_to_rows(run_data, index=False, header=True), start=2):
+    row_subset = [row_data[run_data.columns.get_loc(col)]
+      for col in recognition_columns if col in run_data.columns]
+    for num_col, value in enumerate(row_subset, start=recognition_start_col):
       ws.cell(row=num_row, column=num_col, value=value)
 
   #Creating "Study Phase" header + Leaves gap between two phases 
@@ -158,6 +160,8 @@ for run in recognition_data['Run'].unique():
 
   #Adding in Study Phase data
   for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data[study_columns], index=False, header=True), start=2):
+    row_subset = [row_data[merged_study_data.columns.get_loc(col)]
+      for col in study_columns if col in merged_study_data.columns]
     for num_col, value in enumerate(row_data, start=study_start_col):
       ws.cell(row=num_row, column=num_col, value=value)
 
