@@ -1,6 +1,4 @@
-import os
-import glob
-import shutil #May delete, for altering folders 
+import os 
 import pandas as pd
 import tempfile 
 import re
