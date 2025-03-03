@@ -151,10 +151,11 @@ for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_column
 
 
   #Creating "Study Phase" header + Leaves gap between two phases 
-  study_start_col = len(recognition_columns) + 3  
-  ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
-  ws.cell(row=1, column=study_start_col, value="Study Phase")
-  ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
+  # Creating "Study Phase" header + Leaves gap between two phases
+study_start_col = len(recognition_columns) + 3  # <- Ensure it's aligned correctly
+ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
+ws.cell(row=1, column=study_start_col, value="Study Phase")
+ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
 
   #Adding in Study Phase data
   for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data, index=False, header=True), start=2):
