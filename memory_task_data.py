@@ -144,18 +144,18 @@ for run in recognition_data['Run'].unique():
 
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
- # Using a nested for loop to add Recognition Phase Data created in pandas
-for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
+  # Using a nested for loop to add Recognition Phase Data created in pandas
+  for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
     for num_col, value in enumerate(row_data, start=recognition_start_col):  # Correct indentation
-        ws.cell(row=num_row, column=num_col, value=value)
+      ws.cell(row=num_row, column=num_col, value=value)
 
 
   #Creating "Study Phase" header + Leaves gap between two phases 
   # Creating "Study Phase" header + Leaves gap between two phases
-study_start_col = len(recognition_columns) + 3  # <- Ensure it's aligned correctly
-ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
-ws.cell(row=1, column=study_start_col, value="Study Phase")
-ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
+  study_start_col = len(recognition_columns) + 3  # <- Ensure it's aligned correctly
+  ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
+  ws.cell(row=1, column=study_start_col, value="Study Phase")
+  ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
 
   #Adding in Study Phase data
   for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data, index=False, header=True), start=2):
