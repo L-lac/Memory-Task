@@ -144,9 +144,10 @@ for run in recognition_data['Run'].unique():
 
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
- for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-   for num_col, value in enumerate(row_data, start=recognition_start_col):
-    ws.cell(row=num_row, column=num_col, value=value)
+ # Using a nested for loop to add Recognition Phase Data created in pandas
+for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
+    for num_col, value in enumerate(row_data, start=recognition_start_col):  # Correct indentation
+        ws.cell(row=num_row, column=num_col, value=value)
 
 
   #Creating "Study Phase" header + Leaves gap between two phases 
