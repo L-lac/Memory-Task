@@ -126,7 +126,7 @@ for run in recognition_data['Run'].unique():
   merged_study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
 
   #Specifying columns for Study Phase  
-  study_columns = ['NewImg', 'ImageFile_study', 'ItemID', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  study_columns = ['ImageFile_study', 'ItemID', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
@@ -144,10 +144,10 @@ for run in recognition_data['Run'].unique():
 
   
   #Using a nested for loop to add Recognition Phase Data created in pandas
-  for num_row, row_data in enumerate(dataframe_to_rows(run_data, index=False, header=True), start=2):
-    row_subset = [row_data[i] for i in range(min(len(row_data), len(run_data.columns)))]  # Ensure within bounds
-    for num_col, value in enumerate(row_subset, start=recognition_start_col):
-      ws.cell(row=num_row, column=num_col, value=value)
+ for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
+  for num_col, value in enumerate(row_data, start=recognition_start_col):
+    ws.cell(row=num_row, column=num_col, value=value)
+
 
   #Creating "Study Phase" header + Leaves gap between two phases 
   study_start_col = len(recognition_columns) + 3  
@@ -157,9 +157,9 @@ for run in recognition_data['Run'].unique():
 
   #Adding in Study Phase data
   for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data, index=False, header=True), start=2):
-    row_subset = [row_data[i] for i in range(min(len(row_data), len(merged_study_data.columns)))]  # Prevent IndexError
-    for num_col, value in enumerate(row_subset, start=study_start_col):
+    for num_col, value in enumerate(row_data, start=study_start_col):
       ws.cell(row=num_row, column=num_col, value=value)
+
 
   #Saving the workbook
   wb.save(processed_file_name)
