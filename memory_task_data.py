@@ -1,35 +1,30 @@
 import os 
 import pandas as pd
-import re
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Alignment
 
 #File Paths (Time being, will update using globs module) 
-recognition_file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
-study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35.528.csv"
-
-#Processing data
-recognition_data = pd.read_excel(recognition_file_path)
-study_data = pd.read_csv(study_file_path)
+file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
+data = pd.read_excel(recognition_file_path)
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
 os.makedirs(output_folder, exist_ok=True)
 
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
-recognition_data['stimulus_start_time'] = recognition_data['stimulus_start_time'].ffill()
+data['stimulus_start_time'] = data['stimulus_start_time'].ffill()
 
 #Identifying when a new run starts and assigns a number to each
-recognition_data['Run'] = 1
+data['Run'] = 1
 current_run = 1
 
 #Increment run # by 1 if a reset is detected -> when the current time is < the previous time
-for row in range(1, len(recognition_data)):  
-  if recognition_data['stimulus_start_time'].iloc[row] < recognition_data['stimulus_start_time'].iloc[row - 1]:
+for row in range(1, len(data)):  
+  if data['stimulus_start_time'].iloc[row] < data['stimulus_start_time'].iloc[row - 1]:
     current_run += 1 
   #Assigns current run number to the row 
-  recognition_data.loc[row, 'Run'] = current_run
+  data.loc[row, 'Run'] = current_run
 
 #Extracts Material Type from CondsFile column 
 def extract_material_type(row):
@@ -77,21 +72,10 @@ def recognition_accuracy(run_data):
   #Skip over invalid trials -> "None" 
   run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
   return run_data
-  
-#Searches for a Obj, Scn, or Pair ID within ImageFile column of study phase and then matches it to Recognition
-#Uses re module to search for strings in a file path (study phase ImageFile column) then matches it to Recognition
-def extract_id(filepath):
-  match = re.search(r'(Obj\d+|Scn\d+|Pair\d+)_?', str(filepath), re.IGNORECASE)
-  return match.group(1) if match else None
-
-  
-#Creates ID column in both datasets using the re module to match later 
-recognition_data['ItemID'] = recognition_data['ImageFile'].apply(extract_id)
-study_data['ItemID'] = study_data['ImageFile'].apply(extract_id)
-
+   
 #Processes each run to generate final outputs 
-for run in recognition_data['Run'].unique():
-  run_data = recognition_data[recognition_data['Run'] == run].copy()
+for run in data['Run'].unique():
+  run_data = data[data['Run'] == run].copy()
   
   #Processing functions + Calculating Response Time
   #axis=1 tells apply() function to run the function we created row by row 
@@ -110,24 +94,14 @@ for run in recognition_data['Run'].unique():
   recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ItemID', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
   
   #---- Study Phase Processing ----
-  final_study_output = pd.DataFrame(columns=recognition_columns + ['Onset_Time'])
-  for index, study_row in study_data.iterrows():
-    study_id = study_row['ItemID']
-    study_onset_time = study_row['stimulus_start_time']
+  study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
+  study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
+  study_data['Duration'] = 3  # Study Onset Time is Always 3 Seconds
 
-    # Find matching row in recognition phase final output
-    matched_row = run_data[run_data['ItemID'] == study_id]
-
-    if not matched_row.empty:
-      matched_row = matched_row.iloc[0].copy()  # Copy the matched row
-      matched_row['Onset_Time'] = study_onset_time  # Assign the extracted onset time
-      final_study_output = pd.concat([final_study_output, pd.DataFrame([matched_row])], ignore_index=True)
-
-  final_study_output['Duration'] = 3  
+  study_columns = ['NewImg', 'ImageFile', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
-  final_study_output.to_excel(processed_file_name, index=False)
   
   #--- Using openpyxl to format the headers ---
 
@@ -144,7 +118,7 @@ for run in recognition_data['Run'].unique():
   #Using a nested for loop to add Recognition Phase Data created in pandas
   # Using a nested for loop to add Recognition Phase Data created in pandas
   for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row_data, start=recognition_start_col):  # Correct indentation
+    for num_col, value in enumerate(row_data):  
       ws.cell(row=num_row, column=num_col, value=value)
 
 
@@ -156,10 +130,9 @@ for run in recognition_data['Run'].unique():
   ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
 
   #Adding in Study Phase data
-  for num_row, row_data in enumerate(dataframe_to_rows(merged_study_data, index=False, header=True), start=2):
-    for num_col, value in enumerate(row_data, start=study_start_col):
+  for num_row, row in enumerate(dataframe_to_rows(study_data[study_columns], index=False, header=True), start=2):
+    for num_col, value in enumerate(row, start=study_start_col):  
       ws.cell(row=num_row, column=num_col, value=value)
-
 
   #Saving the workbook
   wb.save(processed_file_name)
