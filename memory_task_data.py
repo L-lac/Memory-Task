@@ -10,6 +10,9 @@ study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35
 data = pd.read_excel(file_path)
 study_data = pd.read_csv(study_file_path)
 
+#Standardizing column names
+study_data.columns = study_data.columns.str.strip().str.lower()
+
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
 os.makedirs(output_folder, exist_ok=True)
@@ -77,19 +80,18 @@ def recognition_accuracy(run_data):
 
 
 def extract_stimulus_start_time(image_file):
-    # 
-    parts = image_file.split("/")
-    if len(parts) > 1:
-        image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
-    else:
-        return None
+  
+  if pd.isna(image_file): return None
+  # 
+  parts = image_file.split("/")
+  if len(parts) > 1:
+    image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
+  else: return None
     
     # Match with CBAS study phase input
-    matched_row = study_data[study_data['ImageFile'].str.contains(image_id, regex=False, na=False)]
-    if not matched_row.empty:
-        return matched_row['stimulus_start_time'].values[0]
-    
-    return None  
+  matched_row = study_data[study_data['ImageFile'].str.contains(image_id, regex=False, na=False)]
+  if not matched_row.empty: return matched_row['stimulus_start_time'].values[0]
+  return None  
   
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
