@@ -6,7 +6,7 @@ from openpyxl.styles import Alignment
 
 #File Paths (Time being, will update using globs module) 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
-data = pd.read_excel(recognition_file_path)
+data = pd.read_excel(file_path)
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
