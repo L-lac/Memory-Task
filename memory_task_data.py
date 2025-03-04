@@ -91,7 +91,7 @@ for run in data['Run'].unique():
   run_data = recognition_accuracy(run_data)
   
   #Specifying columns for Recognition Phase
-  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ItemID', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
+  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
   
   #---- Study Phase Processing ----
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
