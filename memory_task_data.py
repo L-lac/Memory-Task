@@ -12,6 +12,7 @@ study_data = pd.read_csv(study_file_path)
 
 #Standardizing column names
 study_data.columns = study_data.columns.str.strip().str.lower()
+print("Columns in study_data:", study_data.columns.tolist())
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
