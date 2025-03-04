@@ -8,7 +8,8 @@ from openpyxl.styles import Alignment
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
 study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35.528.csv"
 data = pd.read_excel(file_path)
-study_data = pd.read_csv(study_file_path)
+study_input_data = pd.read_csv(study_file_path, encoding='utf-8-sig')
+study_input_data.columns = study_input_data.columns.str.strip().str.lower()  # Standardizing column names
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
@@ -75,17 +76,7 @@ def recognition_accuracy(run_data):
   run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
   return run_data
 
-study_data = pd.read_csv(study_file_path, encoding='utf-8-sig')
-#Standardizing column names
-study_data.columns = study_data.columns.str.strip().str.lower()
-print("Columns in study_data:", study_data.columns.tolist())
-if 'stimulus_start_time' in study_data.columns:
-    study_data['stimulus_start_time'] = pd.to_numeric(study_data['stimulus_start_time'], errors='coerce')
-else:
-    print("⚠️ Warning: 'stimulus_start_time' column not found in study_data!")
-
 def extract_stimulus_start_time(imagefile):
-  
   if pd.isna(imagefile): return None
   # 
   parts = imagefile.split("/")
@@ -93,9 +84,9 @@ def extract_stimulus_start_time(imagefile):
     image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
   else: return None
     
-    # Match with CBAS study phase input
-  matched_row = study_data[study_data['imagefile'].astype(str).str.contains(image_id, regex=False, na=False)]
-  if not matched_row.empty: return matched_row['stimulus_start_time'].values[0]
+  matched_row = study_input_data[study_input_data['imagefile'].astype(str).str.contains(image_id, regex=False, na=False)]
+  if not matched_row.empty: 
+    return matched_row['stimulus_start_time'].dropna().values[0] if 'stimulus_start_time' in study_input_data.columns else None
   return None  
   
 #Processes each run to generate final outputs 
