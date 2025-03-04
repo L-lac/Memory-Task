@@ -115,6 +115,8 @@ for run in data['Run'].unique():
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
   study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
   study_data['Duration'] = 3  # Study Onset Time is Always 3 Seconds
+  
+  study_data.columns = study_data.columns.str.strip()
   #Extract stimulus_start_time for study phase
   study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
 
