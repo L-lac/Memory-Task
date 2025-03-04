@@ -116,7 +116,7 @@ for run in data['Run'].unique():
   
   study_data.columns = study_data.columns.str.strip()
   #Extract stimulus_start_time for study phase
-  study_data['stimulus_start_time'] = study_data['imagefile'].apply(extract_stimulus_start_time)
+  study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
 
   
   study_columns = ['NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
