@@ -6,7 +6,9 @@ from openpyxl.styles import Alignment
 
 #File Paths (Time being, will update using globs module) 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
+study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35.528.csv"
 data = pd.read_excel(file_path)
+study_data = pd.read_csv(study_file_path)
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
@@ -72,7 +74,23 @@ def recognition_accuracy(run_data):
   #Skip over invalid trials -> "None" 
   run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
   return run_data
-   
+
+
+def extract_stimulus_start_time(image_file):
+    # 
+    parts = image_file.split("/")
+    if len(parts) > 1:
+        image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
+    else:
+        return None
+    
+    # Match with CBAS study phase input
+    matched_row = study_data[study_data['ImageFile'].str.contains(image_id, regex=False, na=False)]
+    if not matched_row.empty:
+        return matched_row['stimulus_start_time'].values[0]
+    
+    return None  
+  
 #Processes each run to generate final outputs 
 for run in data['Run'].unique():
   run_data = data[data['Run'] == run].copy()
@@ -97,8 +115,11 @@ for run in data['Run'].unique():
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
   study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
   study_data['Duration'] = 3  # Study Onset Time is Always 3 Seconds
+  #Extract stimulus_start_time for study phase
+  study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
 
-  study_columns = ['NewImg', 'ImageFile', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  
+  study_columns = ['NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
