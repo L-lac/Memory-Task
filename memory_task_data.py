@@ -10,10 +10,6 @@ study_file_path = "CBAS0004_ObjectScenePairTask_local_study2_2024-12-11_13h44.35
 data = pd.read_excel(file_path)
 study_data = pd.read_csv(study_file_path)
 
-#Standardizing column names
-study_data.columns = study_data.columns.str.strip().str.lower()
-print("Columns in study_data:", study_data.columns.tolist())
-
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
 os.makedirs(output_folder, exist_ok=True)
@@ -79,6 +75,14 @@ def recognition_accuracy(run_data):
   run_data.loc[run_data['Recog1_Resp.keys'].isna(), 'Recog1_Resp.corr'] = None
   return run_data
 
+study_data = pd.read_csv(study_file_path, encoding='utf-8-sig')
+#Standardizing column names
+study_data.columns = study_data.columns.str.strip().str.lower()
+print("Columns in study_data:", study_data.columns.tolist())
+if 'stimulus_start_time' in study_data.columns:
+    study_data['stimulus_start_time'] = pd.to_numeric(study_data['stimulus_start_time'], errors='coerce')
+else:
+    print("⚠️ Warning: 'stimulus_start_time' column not found in study_data!")
 
 def extract_stimulus_start_time(image_file):
   
