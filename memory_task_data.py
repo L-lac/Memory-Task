@@ -84,17 +84,17 @@ if 'stimulus_start_time' in study_data.columns:
 else:
     print("⚠️ Warning: 'stimulus_start_time' column not found in study_data!")
 
-def extract_stimulus_start_time(image_file):
+def extract_stimulus_start_time(imagefile):
   
-  if pd.isna(image_file): return None
+  if pd.isna(imagefile): return None
   # 
-  parts = image_file.split("/")
+  parts = imagefile.split("/")
   if len(parts) > 1:
     image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
   else: return None
     
     # Match with CBAS study phase input
-  matched_row = study_data[study_data['ImageFile'].astype(str).str.contains(image_id, regex=False, na=False)]
+  matched_row = study_data[study_data['imagefile'].astype(str).str.contains(image_id, regex=False, na=False)]
   if not matched_row.empty: return matched_row['stimulus_start_time'].values[0]
   return None  
   
@@ -125,7 +125,7 @@ for run in data['Run'].unique():
   
   study_data.columns = study_data.columns.str.strip()
   #Extract stimulus_start_time for study phase
-  study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
+  study_data['stimulus_start_time'] = study_data['imagefile'].apply(extract_stimulus_start_time)
 
   
   study_columns = ['NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
