@@ -89,7 +89,7 @@ def extract_stimulus_start_time(image_file):
   else: return None
     
     # Match with CBAS study phase input
-  matched_row = study_data[study_data['ImageFile'].str.contains(image_id, regex=False, na=False)]
+  matched_row = study_data[study_data['imagefile'].astype(str).str.contains(image_id, regex=False, na=False)]
   if not matched_row.empty: return matched_row['stimulus_start_time'].values[0]
   return None  
   
