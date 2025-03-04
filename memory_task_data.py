@@ -1,6 +1,5 @@
 import os 
 import pandas as pd
-import tempfile 
 import re
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -82,8 +81,9 @@ def recognition_accuracy(run_data):
 #Searches for a Obj, Scn, or Pair ID within ImageFile column of study phase and then matches it to Recognition
 #Uses re module to search for strings in a file path (study phase ImageFile column) then matches it to Recognition
 def extract_id(filepath):
-  match = re.search(r'(Obj\d+|Scn\d+|Pair\d+)', str(filepath), re.IGNORECASE)
+  match = re.search(r'(Obj\d+|Scn\d+|Pair\d+)_?', str(filepath), re.IGNORECASE)
   return match.group(1) if match else None
+
   
 #Creates ID column in both datasets using the re module to match later 
 recognition_data['ItemID'] = recognition_data['ImageFile'].apply(extract_id)
@@ -110,26 +110,24 @@ for run in recognition_data['Run'].unique():
   recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ItemID', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
   
   #---- Study Phase Processing ----
+  final_study_output = pd.DataFrame(columns=recognition_columns + ['Onset_Time'])
+  for index, study_row in study_data.iterrows():
+    study_id = study_row['ItemID']
+    study_onset_time = study_row['stimulus_start_time']
 
-  run_study_data = study_data.copy()
-  #Renmes stimulus_start_time to Onset_Time
-  run_study_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
-  #Study phase duration is always 3 secs
-  run_study_data['Duration'] = 3
-  
-  #Matches study images with recognition phase
-  merged_study_data = run_study_data.merge(
-    run_data[['NewImg', 'ImageFile','ItemID', 'Material_Type','Condition', 'Signal_Detection_Type', 'Material_Attribute', 'Recog1_Resp.corr']],
-    on='ItemID', how='left', suffixes=('_study', '_recog'))
+    # Find matching row in recognition phase final output
+    matched_row = run_data[run_data['ItemID'] == study_id]
 
-  #Renames recognition accuracy column for study phase
-  merged_study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
+    if not matched_row.empty:
+      matched_row = matched_row.iloc[0].copy()  # Copy the matched row
+      matched_row['Onset_Time'] = study_onset_time  # Assign the extracted onset time
+      final_study_output = pd.concat([final_study_output, pd.DataFrame([matched_row])], ignore_index=True)
 
-  #Specifying columns for Study Phase  
-  study_columns = ['ImageFile_study', 'ItemID', 'Material_Type', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  final_study_output['Duration'] = 3  
 
   #Saves the final output for the current run 
   processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
+  final_study_output.to_excel(processed_file_name, index=False)
   
   #--- Using openpyxl to format the headers ---
 
