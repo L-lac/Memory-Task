@@ -77,13 +77,13 @@ def recognition_accuracy(run_data):
   return run_data
 
 def extract_stimulus_start_time(imagefile):
+  #Skips over the empty ones + extracts the Obj, Scn, Pair ID from Imagefile 
   if pd.isna(imagefile): return None
-  # 
   parts = imagefile.split("/")
   if len(parts) > 1:
-    image_id = parts[-1].split("_")[0]  # Extract ObjXX, ScnXX, or PairXX
+    image_id = parts[-1].split("_")[0]  
   else: return None
-    
+ #Matches the ID to the one in Recognition phase, if it is a match -> extract stimulus_start_time from input study file    
   matched_row = study_input_data[study_input_data['imagefile'].astype(str).str.contains(image_id, regex=False, na=False)]
   if not matched_row.empty: 
     return matched_row['stimulus_start_time'].dropna().values[0] if 'stimulus_start_time' in study_input_data.columns else None
