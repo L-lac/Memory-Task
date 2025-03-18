@@ -121,41 +121,27 @@ for run in data['Run'].unique():
   
   study_columns = ['NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
-  #Saves the final output for the current run 
-  processed_file_name = os.path.join(output_folder, f"Run{int(run)}_Memory_Task_Output.xlsx")
-  
-  #--- Using openpyxl to format the headers ---
+  #Saves the recogntiion phase output of current run 
+  recog_file_name = os.path.join(output_folder, f"Run{int(run)}_Recognition.xlsx")
+  wb_recog = Workbook()
+  ws_recog = wb_recog.active
+  ws_recog.title = "Recognition Phase"
+    
+  for row in dataframe_to_rows(run_data[recognition_columns], index=False, header=False):
+    ws_recog.append(row)
+    
+  wb_recog.save(recog_file_name)
+  print(f"Saved Recognition Phase: {recog_file_name}")
 
-  wb = Workbook()
-  ws = wb.active
+  #Saves study phase output for current run 
+  study_file_name = os.path.join(output_folder, f"Run{int(run)}_Study.xlsx")
+  wb_study = Workbook()
+  ws_study = wb_study.active
+  ws_study.title = "Study Phase"
+    
+  for row in dataframe_to_rows(study_data[study_columns], index=False, header=False):
+    ws_study.append(row)
 
-  #Creating "Recognition Phase" header + Fixing the formatting 
-  recognition_start_col = 1  
-  ws.merge_cells(start_row=1, start_column=recognition_start_col, end_row=1, end_column=len(recognition_columns))
-  ws.cell(row=1, column=recognition_start_col, value="Recognition Phase")
-  ws.cell(row=1, column=recognition_start_col).alignment = Alignment(horizontal='center')
-
-  
-  #Using a nested for loop to add Recognition Phase Data created in pandas
-  # Using a nested for loop to add Recognition Phase Data created in pandas
-  for num_row, row_data in enumerate(dataframe_to_rows(run_data[recognition_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row_data, start = recognition_start_col):  
-      ws.cell(row=num_row, column=num_col, value=value)
-
-
-  #Creating "Study Phase" header + Leaves gap between two phases 
-  # Creating "Study Phase" header + Leaves gap between two phases
-  study_start_col = len(recognition_columns) + 3  # <- Ensure it's aligned correctly
-  ws.merge_cells(start_row=1, start_column=study_start_col, end_row=1, end_column=study_start_col + len(study_columns) - 1)
-  ws.cell(row=1, column=study_start_col, value="Study Phase")
-  ws.cell(row=1, column=study_start_col).alignment = Alignment(horizontal='center')
-
-  #Adding in Study Phase data
-  for num_row, row in enumerate(dataframe_to_rows(study_data[study_columns], index=False, header=True), start=2):
-    for num_col, value in enumerate(row, start=study_start_col):  
-      ws.cell(row=num_row, column=num_col, value=value)
-
-  #Saving the workbook
-  wb.save(processed_file_name)
-  print(f"Saved output for Run {run} with openpyxl: {processed_file_name}")
+  wb_study.save(study_file_name)
+  print(f"Saved Study Phase: {study_file_name}")
 
