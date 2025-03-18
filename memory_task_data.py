@@ -118,7 +118,7 @@ for run in data['Run'].unique():
   study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
 
   
-  study_columns = ['NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  study_columns = ['Material_Type', 'NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the recogntiion phase output of current run 
   recog_file_name = os.path.join(output_folder, f"Run{int(run)}_Recognition.xlsx")
@@ -143,5 +143,5 @@ for run in data['Run'].unique():
     ws_study.append(row)
 
   wb_study.save(study_file_name)
-  print(f"Saved Study Phase: {study_file_name}")
+print("The study and recognition phase outputs have been generated. 😊")
 
