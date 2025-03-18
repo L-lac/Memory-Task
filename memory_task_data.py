@@ -116,9 +116,8 @@ for run in data['Run'].unique():
   study_data.columns = study_data.columns.str.strip()
   #Extract stimulus_start_time for study phase
   study_data['stimulus_start_time'] = study_data['ImageFile'].apply(extract_stimulus_start_time)
-  study_data.rename(columns={'stimulus_start_time': 'Onset_Time'}, inplace=True)
   
-  study_columns = ['Material_Type', 'NewImg', 'ImageFile', 'Onset_Time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
+  study_columns = ['Material_Type', 'NewImg', 'ImageFile', 'stimulus_start_time', 'Duration', 'Condition', 'Recognition_Accuracy', 'Signal_Detection_Type', 'Material_Attribute']
 
   #Saves the recogntiion phase output of current run 
   recog_file_name = os.path.join(output_folder, f"Run{int(run)}_Recognition.xlsx")
