@@ -2,7 +2,6 @@ import os
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Alignment
 
 #File Paths (Time being, will update using globs module) 
 file_path = "CBAS0004_ObjectScenePairTask_local_recog_final_2024-12-11_14h33.30.581.xlsx"
@@ -126,18 +125,19 @@ for run in data['Run'].unique():
   wb_recog = Workbook()
   ws_recog = wb_recog.active
   ws_recog.title = "Recognition Phase"
+  ws_recog.append(recognition_columns)
     
   for row in dataframe_to_rows(run_data[recognition_columns], index=False, header=False):
     ws_recog.append(row)
     
   wb_recog.save(recog_file_name)
-  print(f"Saved Recognition Phase: {recog_file_name}")
 
   #Saves study phase output for current run 
   study_file_name = os.path.join(output_folder, f"Run{int(run)}_Study.xlsx")
   wb_study = Workbook()
   ws_study = wb_study.active
   ws_study.title = "Study Phase"
+  ws_study.append(study_columns)
     
   for row in dataframe_to_rows(study_data[study_columns], index=False, header=False):
     ws_study.append(row)
