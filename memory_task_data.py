@@ -104,13 +104,13 @@ for run in data['Run'].unique():
 
   #Calculate Recognition Accuracy 
   run_data = recognition_accuracy(run_data)
+  run_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
   
   #Specifying columns for Recognition Phase
-  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
+  recognition_columns = ['Material_Type', 'NewImg', 'ImageFile', 'ConType', 'Condition', 'Recognition_Accuracy', 'Onset_Time', 'Duration', 'Signal_Detection_Type', 'Material_Attribute']
   
   #---- Study Phase Processing ----
   study_data = run_data[run_data['NewImg'] == 'Studied'].copy()
-  study_data.rename(columns={'Recog1_Resp.corr': 'Recognition_Accuracy'}, inplace=True)
   study_data['Duration'] = 3  # Study Onset Time is Always 3 Seconds
   
   study_data.columns = study_data.columns.str.strip()
