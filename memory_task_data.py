@@ -142,5 +142,44 @@ for run in data['Run'].unique():
     ws_study.append(row)
 
   wb_study.save(study_file_name)
-print("The study and recognition phase outputs have been generated. 😊")
+print("The study and recognition phase outputs have been generated! 😊")
 
+# Generate Timing Files
+runs = [1, 2, 3, 4]
+phases = ["Recognition", "Study"]
+material_types = {"Object": "Obj", "Scene": "Scn", "Pair": "Pair"}
+conditions = {
+  "Hit": ["Hit"],
+  "Miss": ["Miss"],
+  "CR": ["CR"],
+  "FA": ["FA"],
+  "All_Correct": ["Hit", "CR"],
+  "All_Wrong": ["Miss", "FA"],
+}
+
+for run in runs:
+  for phase in phases:
+    file_name = os.path.join(output_folder, f"Run{run}_{phase}.xlsx")
+    if not os.path.exists(file_name): continue
+
+    df = pd.read_excel(file_name)
+    required_columns = {'Material_Type', 'Signal_Detection_Type', 'Duration'}
+    if phase == "Study": required_columns.add('stimulus_start_time')
+    else: required_columns.add('Onset_Time')
+
+    if not required_columns.issubset(df.columns): continue
+
+    for material, short_name in material_types.items():
+      material_df = df[df['Material_Type'] == material]
+      for condition, condition_values in conditions.items():
+        filtered_df = material_df[material_df['Signal_Detection_Type'].isin(condition_values)]
+
+        timing_file = os.path.join(timing_folder, f"{phase}_Run{run}_{short_name}_{condition}.txt")
+        with open(timing_file, "w") as f:
+          if not filtered_df.empty:
+            for _, row in filtered_df.iterrows():
+              onset_time = row['stimulus_start_time'] if phase == "Study" else row['Onset_Time']
+              parametric_modulation = row['Recognition_Accuracy'] if pd.notna(row['Recognition_Accuracy']) else "missing'
+              f.write(f"{onset_time:.3f} {row['Duration']:.3f} {parametric_modulation}\n")
+
+print("Timing files created! 🥳 ")
