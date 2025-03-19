@@ -12,7 +12,9 @@ study_input_data.columns = study_input_data.columns.str.strip().str.lower()  # S
 
 #Creates ouput folder 
 output_folder = "Memory_Task_Outputs"
+timing_folder = "Memory_Task_Timing_Files"
 os.makedirs(output_folder, exist_ok=True)
+os.makedirs(timing_folder, exist_ok=True)
 
 #Any empty boxes return a NaN --> to fix this we forward fill by assigning it to the last valid previously used time
 data['stimulus_start_time'] = data['stimulus_start_time'].ffill()
