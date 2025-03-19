@@ -179,7 +179,7 @@ for run in runs:
           if not filtered_df.empty:
             for _, row in filtered_df.iterrows():
               onset_time = row['stimulus_start_time'] if phase == "Study" else row['Onset_Time']
-              parametric_modulation = row['Recognition_Accuracy'] if pd.notna(row['Recognition_Accuracy']) else "missing'
+              parametric_modulation = row['Recognition_Accuracy'] if pd.notna(row['Recognition_Accuracy']) else "missing"
               f.write(f"{onset_time:.3f} {row['Duration']:.3f} {parametric_modulation}\n")
 
 print("Timing files created! 🥳 ")
