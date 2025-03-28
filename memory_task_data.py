@@ -85,6 +85,15 @@ for subject in selected_subjects:
     elif "pair" in str(row).lower(): return "Pair"
     else: return None
 
+  #Determines the condition based on the NewImg and ConType columns 
+  def determine_condition(row):
+    if pd.isna(row['NewImg']): return None
+    if row['NewImg'] == 'New': return 'New'
+    if row['NewImg'] == 'Studied':
+        if row['ConType'] == 1: return 'Old'
+        if row['ConType'] > 1: return 'Lure'
+    return None
+    
   #Signal Detection Theory: Based on Recog1_Resp.corr column -> 1 = correct response, 0 = incorrect  
   def signal_detection(row):
     #Old pics: 1 = Hit, 0 = Miss
@@ -144,6 +153,7 @@ for subject in selected_subjects:
   
     #Processing functions + Calculating Response Time
     #axis=1 tells apply() function to run the function we created row by row 
+    run_data['Condition'] = run_data.apply(determine_condition, axis=1)
     run_data['Material_Type'] = run_data['CondsFile'].apply(extract_material_type)
     run_data['Duration'] = run_data['stimulus_end_time'] - run_data['stimulus_start_time'] 
     run_data['Signal_Detection_Type'] = run_data.apply(signal_detection, axis=1)
@@ -230,6 +240,6 @@ for subject in selected_subjects:
               for _, row in filtered_df.iterrows():
                 onset_time = row['stimulus_start_time'] if phase == "Study" else row['Onset_Time']
                 parametric_modulation = row['Recognition_Accuracy'] if pd.notna(row['Recognition_Accuracy']) else "missing"
-                f.write(f"{onset_time:.3f} {row['Duration']:.3f} {parametric_modulation}\n")
+                f.write(f"{onset:.3f} {row['Duration']:.3f} 1\n")
 
   print("Timing files created! 🥳 ")
