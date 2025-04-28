@@ -39,10 +39,10 @@ for subject in selected_subjects:
     print(f"Skipping {subject} - No 'Time1' folder found.")
     continue
 
-  #Locate `beh/` folder inside `Time1`
-  beh_folder = os.path.join(subject_path, "beh")
+  #Locate `mri_beh/` folder inside `Time1`
+  beh_folder = os.path.join(subject_path, "mri_beh", "memory")
   if not os.path.exists(beh_folder):
-    print(f"Skipping {subject} - 'beh' folder not found.")
+    print(f"Skipping {subject} - 'mri_beh/memory' folder not found.")
     continue
 
   #Find the Recognition & Study files
